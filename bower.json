@@ -1,0 +1,18 @@
+{
+  "name": "angular-api-for-kirby",
+  "authors": [
+    "Jonatan Eriksson <jonatan@tsto.org>"
+  ],
+  "description": "Angular 1 object for loading Kirby CMS content (through jonataneriksson/api)",
+  "main": "api.js",
+  "license": "MIT",
+  "homepage": "tsto.org",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
