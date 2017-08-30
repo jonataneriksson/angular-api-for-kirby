@@ -2,7 +2,7 @@
 /* !Config */
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-var plugin = angular.module('jonataneriksson.angular-api-for-kirby', []);
+var plugin = angular.module('api-for-kirby', []);
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 /* !API Factory */
