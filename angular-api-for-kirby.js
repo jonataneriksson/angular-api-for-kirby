@@ -63,13 +63,18 @@ plugin.factory('api', function($http, $rootScope, $q, guide){
 
   //
   api.full = function(){
-    if(!api.loaded.full){
+    var promise = $q.defer();
+    if(!api.loaded.full && !api.loading.full){
+      api.loading.full = true;
       $http.get('api.json?full=true').then(function(response){
+        promise.resolve(response.data);
         api.loaded = response.data;
         api.loaded.full = true;
       });
     }
+    return promise.promise;
   }
+
 
   //Tell the waiting parties to get their data
   api.extend = function(pages){
