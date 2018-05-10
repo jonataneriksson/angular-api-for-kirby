@@ -18,7 +18,7 @@ plugin.factory('api', function($http, $rootScope, $q, guide){
   api.loaded = {};
   api.promises = [];
   //The load function
-  api.load = function(currentpath){
+  api.load = function(currentpath = '/'){
     //Clean up.
     currentpath = (currentpath.indexOf('/') === 0) ? currentpath.replace('/','') : currentpath;
     //if the url has not been added to the loading
@@ -30,7 +30,7 @@ plugin.factory('api', function($http, $rootScope, $q, guide){
         api.loaded = (!api.loaded.pages) ? response.data : api.loaded;
         storedpage = guide.resolve(api.loaded.pages, currentpath);
         loadedpage = (typeof response.data.pages !== 'object') ? response.data.page : guide.resolve(response.data.pages, currentpath);
-        if(loadedpage) Object.assign(storedpage, loadedpage);
+        if(typeof loadedpage == 'object' && typeof storedpage == 'object') Object.assign(storedpage, loadedpage);
         api.loading[currentpath].resolve(api.loaded);
         api.resolve(api.loaded);
       });
@@ -108,8 +108,9 @@ plugin.factory('api', function($http, $rootScope, $q, guide){
 plugin.factory('guide', function(){
     var guide = {};
     guide.resolve = function(object, currentpath) {
+        //console.log(object);
         //If path is the root there's nothing to resolve
-        if(currentpath == '/') return object;
+        if(currentpath == '/' || currentpath == undefined) return object;
         //Remove the slash from the beginning if it exists
         currentpath = (currentpath.indexOf('/') === 0) ? currentpath.replace('/','') : currentpath;
         //Split path to array
