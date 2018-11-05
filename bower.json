@@ -5,6 +5,7 @@
   ],
   "description": "Angular 1 object for loading Kirby CMS content (through jonataneriksson/api)",
   "main": "api.js",
+  "version": "1.0",
   "license": "MIT",
   "homepage": "tsto.org",
   "private": true,

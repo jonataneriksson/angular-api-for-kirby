@@ -8,6 +8,32 @@ var plugin = angular.module('api-for-kirby', []);
 /* !API Factory */
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+/* !IE Polyfill */
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+if (typeof Object.assign != 'function') {
+  Object.assign = function(target) {
+    'use strict';
+    if (target == null) {
+      throw new TypeError('Cannot convert undefined or null to object');
+    }
+
+    target = Object(target);
+    for (var index = 1; index < arguments.length; index++) {
+      var source = arguments[index];
+      if (source != null) {
+        for (var key in source) {
+          if (Object.prototype.hasOwnProperty.call(source, key)) {
+            target[key] = source[key];
+          }
+        }
+      }
+    }
+    return target;
+  };
+}
+
 //Let's save this outside so we can inspect it
 
 var api = {};
@@ -17,8 +43,9 @@ plugin.factory('api', function($http, $rootScope, $q, guide){
   api.loading = {};
   api.loaded = {};
   api.promises = [];
+  currentpath = '/';
   //The load function
-  api.load = function(currentpath = '/'){
+  api.load = function(currentpath){
     //Clean up.
     currentpath = (currentpath.indexOf('/') === 0) ? currentpath.replace('/','') : currentpath;
     //if the url has not been added to the loading
@@ -39,6 +66,7 @@ plugin.factory('api', function($http, $rootScope, $q, guide){
       api.loading[currentpath].resolve(api.loaded);
       api.resolve(api.loaded);
     }
+    //console.timeEnd('Load');
     //Return a promise
     return api.loading[currentpath].promise;
   }
@@ -73,7 +101,7 @@ plugin.factory('api', function($http, $rootScope, $q, guide){
       });
     }
     return promise.promise;
-  }
+  };
 
 
   //Tell the waiting parties to get their data
@@ -95,7 +123,7 @@ plugin.factory('api', function($http, $rootScope, $q, guide){
         });
       }
     }
-  }
+  };
 
   //Return object
   return api
@@ -108,17 +136,36 @@ plugin.factory('api', function($http, $rootScope, $q, guide){
 plugin.factory('guide', function(){
     var guide = {};
     guide.resolve = function(object, currentpath) {
-        //console.log(object);
-        //If path is the root there's nothing to resolve
-        if(currentpath == '/' || currentpath == undefined) return object;
-        //Remove the slash from the beginning if it exists
-        currentpath = (currentpath.indexOf('/') === 0) ? currentpath.replace('/','') : currentpath;
-        //Split path to array
-        var parts = currentpath.split('/');
-        //The magic while loop which switfts out url parts while going deeper to our objects(or children objects)
-        while( parts.length && (object = ('children' in object) ? object.children[parts.shift()] : object[parts.shift()]));
-        //Return object
-        return object;
+        //console.time('Resolve');
+        if(typeof object != 'undefined'){
+          //console.log('currentpath', currentpath);
+          //If path is the root there's nothing to resolve
+          if(currentpath == '/' || currentpath == undefined){
+            //console.log('We are home!');
+            return object;
+          }
+          //Remove the slash from the beginning if it exists
+          currentpath = (currentpath.indexOf('/') === 0) ? currentpath.replace('/','') : currentpath;
+          //Split path to array
+          var parts = currentpath.split('/');
+          //console.log('parts', parts);
+          //The magic while loop which switfts out url parts while going deeper to our objects(or children objects)
+          while(parts.length){
+            if(typeof object.children === 'object'){
+              //console.log('has children:', parts[0], object, parts);
+              object = object.children[parts.shift()];
+              //console.info('Result:', object);
+            } else if( typeof object.children === 'undefined' ) {
+              //console.log('no children:', parts[0], object, parts);
+              object = object[parts.shift()];
+            } else {
+              console.error('Something went wrong.');
+            }
+          }
+          //console.timeEnd('Resolve');
+          //Return object
+          return object;
+        }
     }
     return guide;
 });
