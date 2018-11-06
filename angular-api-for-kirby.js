@@ -5,10 +5,6 @@
 var plugin = angular.module('api-for-kirby', []);
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
-/* !API Factory */
-/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
-
-/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 /* !IE Polyfill */
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
@@ -34,6 +30,10 @@ if (typeof Object.assign != 'function') {
   };
 }
 
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+/* !API Factory */
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
 //Let's save this outside so we can inspect it
 
 var api = {};
@@ -42,7 +42,9 @@ var api = {};
 plugin.factory('api', function($http, $rootScope, $q, guide){
   api.loading = {};
   api.loaded = {};
+  api.language = 'en';
   api.promises = [];
+  api.querystring = '';
   currentpath = '/';
   //The load function
   api.load = function(currentpath){
@@ -52,8 +54,12 @@ plugin.factory('api', function($http, $rootScope, $q, guide){
     if(!(currentpath in api.loading) && !api.loaded.full){
       //Let's add a universal listener for the url
       api.loading[currentpath] = $q.defer();
+      //The query string
+      api.querystring = 'api.json?path='+currentpath;
+      api.querystring = api.querystring+'&structure='+(api.loaded.pages ? 1 : 0);
+      api.querystring = api.querystring+'&language='+api.language;
       //The actual get.
-      $http.get('api.json?path='+currentpath+'&structure='+(api.loaded.pages ? 1 : 0)).then(function(response) {
+      $http.get(api.querystring).then(function(response) {
         api.loaded = (!api.loaded.pages) ? response.data : api.loaded;
         storedpage = guide.resolve(api.loaded.pages, currentpath);
         loadedpage = (typeof response.data.pages !== 'object') ? response.data.page : guide.resolve(response.data.pages, currentpath);
@@ -123,6 +129,11 @@ plugin.factory('api', function($http, $rootScope, $q, guide){
         });
       }
     }
+  };
+
+  //Tell the waiting parties to get their data
+  api.setLanguage = function(language){
+    api.language = language;
   };
 
   //Return object
