@@ -46,12 +46,17 @@ plugin.factory('api', function($http, $rootScope, $q, guide){
   api.promises = [];
   api.querystring = '';
   currentpath = '/';
+
   //The load function
   api.load = function(currentpath){
-    //Clean up.
+    //Clean up the path.
     currentpath = (currentpath.indexOf('/') === 0) ? currentpath.replace('/','') : currentpath;
     //if the url has not been added to the loading
-    if(!(currentpath in api.loading) && !api.loaded.full){
+    if(api.loaded.full) {
+     api.loading[currentpath] = $q.defer();
+     api.loading[currentpath].resolve(api.loaded);
+     api.resolve(api.loaded);
+    } else if(!(currentpath in api.loading)){
       //Let's add a universal listener for the url
       api.loading[currentpath] = $q.defer();
       //The query string
@@ -60,17 +65,28 @@ plugin.factory('api', function($http, $rootScope, $q, guide){
       api.querystring = api.querystring+'&language='+api.language;
       //The actual get.
       $http.get(api.querystring).then(function(response) {
-        api.loaded = (!api.loaded.pages) ? response.data : api.loaded;
-        storedpage = guide.resolve(api.loaded.pages, currentpath);
-        loadedpage = (typeof response.data.pages !== 'object') ? response.data.page : guide.resolve(response.data.pages, currentpath);
-        if(typeof loadedpage == 'object' && typeof storedpage == 'object') Object.assign(storedpage, loadedpage);
+        //Check if API is once loaded
+        if(api.loaded.pages) {
+          storedpage = guide.resolve(api.loaded.pages, currentpath);
+          //console.info('Stored:', storedpage.children);
+          loadedpage = (typeof response.data.pages !== 'object') ? response.data.page : guide.resolve(response.data.pages, currentpath);
+          loadedpage.children = storedpage.children;
+          if(typeof loadedpage == 'object' && typeof storedpage == 'object'){
+            Object.assign(storedpage, loadedpage);
+          }
+        } else {
+          api.loaded = response.data;
+          storedpage = guide.resolve(response.data.pages, currentpath);
+          //console.log('No stored pages', storedpage, currentpath);
+          loadedpage = (typeof response.data.pages !== 'object') ? response.data.page : guide.resolve(response.data.pages, currentpath);
+          //console.log('Loaded:', loadedpage, currentpath);
+          if(typeof loadedpage == 'object' && typeof storedpage == 'object'){
+            Object.assign(storedpage, loadedpage);
+          }
+        }
         api.loading[currentpath].resolve(api.loaded);
         api.resolve(api.loaded);
       });
-    } else if(api.loaded.full) {
-      api.loading[currentpath] = $q.defer();
-      api.loading[currentpath].resolve(api.loaded);
-      api.resolve(api.loaded);
     }
     //console.timeEnd('Load');
     //Return a promise
