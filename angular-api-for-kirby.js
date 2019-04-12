@@ -70,10 +70,13 @@ plugin.factory('api', function($http, $rootScope, $q, guide){
           storedpage = guide.resolve(api.loaded.pages, currentpath);
           //console.info('Stored:', storedpage.children);
           loadedpage = (typeof response.data.pages !== 'object') ? response.data.page : guide.resolve(response.data.pages, currentpath);
-          loadedpage.children = storedpage.children;
           if(typeof loadedpage == 'object' && typeof storedpage == 'object'){
             Object.assign(storedpage, loadedpage);
           }
+          if(typeof storedpage.children == 'object'){
+            loadedpage.children = storedpage.children;
+          }
+
         } else {
           api.loaded = response.data;
           storedpage = guide.resolve(response.data.pages, currentpath);
