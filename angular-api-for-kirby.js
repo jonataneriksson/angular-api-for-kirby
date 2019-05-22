@@ -48,9 +48,10 @@ plugin.factory('api', function($http, $rootScope, $q, guide){
   currentpath = '/';
 
   //The load function
-  api.load = function(currentpath){
+  api.load = function(currentpath, site){
     //Clean up the path.
-    currentpath = (currentpath.indexOf('/') === 0) ? currentpath.replace('/','') : currentpath;
+    currentpath = (currentpath.indexOf('/') === 0 && currentpath != '/') ? currentpath.replace('/','') : currentpath;
+    console.log('currentpath', currentpath);
     //if the url has not been added to the loading
     if(api.loaded.full) {
      api.loading[currentpath] = $q.defer();
@@ -65,7 +66,7 @@ plugin.factory('api', function($http, $rootScope, $q, guide){
       api.querystring = api.querystring+'&language='+api.language;
       //The actual get.
       $http.get(api.querystring).then(function(response) {
-        //Check if API is once loaded
+        //Check if API is loaded once already
         if(api.loaded.pages) {
           storedpage = guide.resolve(api.loaded.pages, currentpath);
           //console.info('Stored:', storedpage.children);
@@ -165,15 +166,12 @@ plugin.factory('api', function($http, $rootScope, $q, guide){
 
 plugin.factory('guide', function(){
     var guide = {};
-    guide.resolve = function(object, currentpath) {
+    guide.resolve = function(object, currentpath, site) {
         //console.time('Resolve');
         if(typeof object != 'undefined'){
-          //console.log('currentpath', currentpath);
           //If path is the root there's nothing to resolve
-          if(currentpath == '/' || currentpath == undefined){
-            //console.log('We are home!');
-            return object;
-          }
+          currentpath = ((currentpath == '/' || currentpath == undefined) && site) ? site.homepage : currentpath;
+          console.log('currentpath', currentpath, site);
           //Remove the slash from the beginning if it exists
           currentpath = (currentpath.indexOf('/') === 0) ? currentpath.replace('/','') : currentpath;
           //Split path to array

@@ -4,8 +4,8 @@
     "Jonatan Eriksson <jonatan@tsto.org>"
   ],
   "description": "Angular 1 object for loading Kirby CMS content (through jonataneriksson/api)",
-  "main": "api.js",
-  "version": "1.3",
+  "main": "angular-api-for-kirby.js",
+  "version": "1.4",
   "license": "MIT",
   "homepage": "tsto.org",
   "private": true,
