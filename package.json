@@ -2,7 +2,7 @@
   "name": "angular-api-for-kirby",
   "version": "0.0.9",
   "description": "Angular 1 object for loading Kirby CMS content (through jonataneriksson/api)",
-  "main": "ngular-api-for-kirby.js",
+  "main": "angular-api-for-kirby.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
