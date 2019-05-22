@@ -1,19 +1,19 @@
 {
   "name": "angular-api-for-kirby",
-  "authors": [
-    "Jonatan Eriksson <jonatan@tsto.org>"
-  ],
+  "version": "0.0.9",
   "description": "Angular 1 object for loading Kirby CMS content (through jonataneriksson/api)",
-  "main": "angular-api-for-kirby.js",
-  "version": "1.4",
-  "license": "MIT",
-  "homepage": "tsto.org",
-  "private": true,
-  "ignore": [
-    "**/.*",
-    "node_modules",
-    "bower_components",
-    "test",
-    "tests"
-  ]
+  "main": "ngular-api-for-kirby.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jonataneriksson/angular-api-for-kirby.git"
+  },
+  "author": "Jonatan Eriksson",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jonataneriksson/angular-api-for-kirby/issues"
+  },
+  "homepage": "https://github.com/jonataneriksson/angular-api-for-kirby#readme"
 }
