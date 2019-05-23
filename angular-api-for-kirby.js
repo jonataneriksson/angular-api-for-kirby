@@ -198,4 +198,4 @@ plugin.factory('guide', function(){
     return guide;
 });
 
-export default plugin;
+export default plugin.name;
