@@ -1,6 +1,6 @@
 {
   "name": "angular-api-for-kirby",
-  "version": "0.0.9",
+  "version": "0.1.0",
   "description": "Angular 1 object for loading Kirby CMS content (through jonataneriksson/api)",
   "main": "angular-api-for-kirby.js",
   "scripts": {
