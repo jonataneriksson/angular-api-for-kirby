@@ -2,7 +2,7 @@
 /* !Config */
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-var plugin = angular.module('api-for-kirby', []);
+let plugin = angular.module('api-for-kirby', []);
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 /* !IE Polyfill */
@@ -197,3 +197,5 @@ plugin.factory('guide', function(){
     }
     return guide;
 });
+
+export default plugin;
