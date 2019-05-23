@@ -91,7 +91,7 @@ export default class api {
     var promise = $q.defer();
     api.promises.push(promise);
     if(Object.keys(api.loaded).length){
-      for (first in api.loaded) break;
+      for (let first in api.loaded) break;
       api.resolve(api.loaded);
     }
     return promise.promise;
