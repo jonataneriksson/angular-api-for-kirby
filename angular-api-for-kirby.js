@@ -1,51 +1,40 @@
-/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
-/* !Config */
-/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
-
-let plugin = angular.module('api-for-kirby', []);
-
-/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
-/* !IE Polyfill */
-/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
-
-if (typeof Object.assign != 'function') {
-  Object.assign = function(target) {
-    'use strict';
-    if (target == null) {
-      throw new TypeError('Cannot convert undefined or null to object');
-    }
-
-    target = Object(target);
-    for (var index = 1; index < arguments.length; index++) {
-      var source = arguments[index];
-      if (source != null) {
-        for (var key in source) {
-          if (Object.prototype.hasOwnProperty.call(source, key)) {
-            target[key] = source[key];
-          }
-        }
-      }
-    }
-    return target;
-  };
-}
-
-/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
-/* !API Factory */
-/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
-
-//Let's save this outside so we can inspect it
-
-var api = {};
-
 //Welcome to our factory
-plugin.factory('api', function($http, $rootScope, $q, guide){
+export default class api {
+
+  constructor($http, $rootScope, $q){
+
+  var api = {};
   api.loading = {};
   api.loaded = {};
   api.language = 'en';
   api.promises = [];
   api.querystring = '';
-  currentpath = '/';
+
+  /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+  /* !IE Polyfill */
+  /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+  if (typeof Object.assign != 'function') {
+    Object.assign = function(target) {
+      'use strict';
+      if (target == null) {
+        throw new TypeError('Cannot convert undefined or null to object');
+      }
+
+      target = Object(target);
+      for (var index = 1; index < arguments.length; index++) {
+        var source = arguments[index];
+        if (source != null) {
+          for (var key in source) {
+            if (Object.prototype.hasOwnProperty.call(source, key)) {
+              target[key] = source[key];
+            }
+          }
+        }
+      }
+      return target;
+    };
+  }
 
   //The load function
   api.load = function(currentpath, site){
@@ -68,9 +57,9 @@ plugin.factory('api', function($http, $rootScope, $q, guide){
       $http.get(api.querystring).then(function(response) {
         //Check if API is loaded once already
         if(api.loaded.pages) {
-          storedpage = guide.resolve(api.loaded.pages, currentpath);
+          let storedpage = api.guide.resolve(api.loaded.pages, currentpath);
           //console.info('Stored:', storedpage.children);
-          loadedpage = (typeof response.data.pages !== 'object') ? response.data.page : guide.resolve(response.data.pages, currentpath);
+          let loadedpage = (typeof response.data.pages !== 'object') ? response.data.page : api.guide.resolve(response.data.pages, currentpath);
           if(typeof loadedpage == 'object' && typeof storedpage == 'object'){
             Object.assign(storedpage, loadedpage);
           }
@@ -80,9 +69,9 @@ plugin.factory('api', function($http, $rootScope, $q, guide){
 
         } else {
           api.loaded = response.data;
-          storedpage = guide.resolve(response.data.pages, currentpath);
+          let storedpage = api.guide.resolve(response.data.pages, currentpath);
           //console.log('No stored pages', storedpage, currentpath);
-          loadedpage = (typeof response.data.pages !== 'object') ? response.data.page : guide.resolve(response.data.pages, currentpath);
+          let loadedpage = (typeof response.data.pages !== 'object') ? response.data.page : api.guide.resolve(response.data.pages, currentpath);
           //console.log('Loaded:', loadedpage, currentpath);
           if(typeof loadedpage == 'object' && typeof storedpage == 'object'){
             Object.assign(storedpage, loadedpage);
@@ -151,6 +140,38 @@ plugin.factory('api', function($http, $rootScope, $q, guide){
     }
   };
 
+  api.guide = {};
+  api.guide.resolve = function(object, currentpath, site) {
+      //console.time('Resolve');
+      if(typeof object != 'undefined'){
+        //If path is the root there's nothing to resolve
+        currentpath = ((currentpath == '/' || currentpath == undefined) && site) ? site.homepage : currentpath;
+        console.log('currentpath', currentpath, site);
+        //Remove the slash from the beginning if it exists
+        currentpath = (currentpath.indexOf('/') === 0) ? currentpath.replace('/','') : currentpath;
+        //Split path to array
+        var parts = currentpath.split('/');
+        //console.log('parts', parts);
+        //The magic while loop which switfts out url parts while going deeper to our objects(or children objects)
+        while(parts.length){
+          if(typeof object.children === 'object'){
+            //console.log('has children:', parts[0], object, parts);
+            object = object.children[parts.shift()];
+            //console.info('Result:', object);
+          } else if( typeof object.children === 'undefined' ) {
+            //console.log('no children:', parts[0], object, parts);
+            object = object[parts.shift()];
+          } else {
+            console.error('Something went wrong.');
+          }
+        }
+        //console.timeEnd('Resolve');
+        //Return object
+        return object;
+      }
+  }
+
+
   //Tell the waiting parties to get their data
   api.setLanguage = function(language){
     api.language = language;
@@ -158,44 +179,4 @@ plugin.factory('api', function($http, $rootScope, $q, guide){
 
   //Return object
   return api
-});
-
-/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
-/* !Guide for navigating objects */
-/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
-
-plugin.factory('guide', function(){
-    var guide = {};
-    guide.resolve = function(object, currentpath, site) {
-        //console.time('Resolve');
-        if(typeof object != 'undefined'){
-          //If path is the root there's nothing to resolve
-          currentpath = ((currentpath == '/' || currentpath == undefined) && site) ? site.homepage : currentpath;
-          console.log('currentpath', currentpath, site);
-          //Remove the slash from the beginning if it exists
-          currentpath = (currentpath.indexOf('/') === 0) ? currentpath.replace('/','') : currentpath;
-          //Split path to array
-          var parts = currentpath.split('/');
-          //console.log('parts', parts);
-          //The magic while loop which switfts out url parts while going deeper to our objects(or children objects)
-          while(parts.length){
-            if(typeof object.children === 'object'){
-              //console.log('has children:', parts[0], object, parts);
-              object = object.children[parts.shift()];
-              //console.info('Result:', object);
-            } else if( typeof object.children === 'undefined' ) {
-              //console.log('no children:', parts[0], object, parts);
-              object = object[parts.shift()];
-            } else {
-              console.error('Something went wrong.');
-            }
-          }
-          //console.timeEnd('Resolve');
-          //Return object
-          return object;
-        }
-    }
-    return guide;
-});
-
-export default plugin.name;
+}}
