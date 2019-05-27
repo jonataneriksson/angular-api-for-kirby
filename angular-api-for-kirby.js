@@ -40,7 +40,6 @@ export default class api {
   api.load = function(currentpath, site){
     //Clean up the path.
     currentpath = (currentpath.indexOf('/') === 0 && currentpath != '/') ? currentpath.replace('/','') : currentpath;
-    console.log('currentpath', currentpath);
     //if the url has not been added to the loading
     if(api.loaded.full) {
      api.loading[currentpath] = $q.defer();
